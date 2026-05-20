@@ -11,13 +11,40 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/components/ui/dialog';
-import { Plus, LogOut, Edit, Trash2, Upload } from 'lucide-react';
+import { Plus, LogOut, Edit, Trash2, Upload, X } from 'lucide-react';
 import Image from 'next/image';
 import { Image as IKImage, ImageKitProvider } from '@imagekit/react';
 import { getAdminImageUrl } from '@/lib/imagekit';
 import { useLocale } from 'next-intl';
 import DashboardLanguageSwitcher from '@/components/DashboardLanguageSwitcher';
+import ColorPicker from '@/components/ColorPicker';
 import { type MenuItem } from '@/lib/db';
+
+function normalizeSizes(value: unknown): string[] {
+  if (Array.isArray(value)) {
+    return value
+      .map((size) => String(size).trim())
+      .filter(Boolean);
+  }
+
+  if (typeof value === 'string') {
+    try {
+      const parsed = JSON.parse(value);
+      if (Array.isArray(parsed)) {
+        return parsed
+          .map((size) => String(size).trim())
+          .filter(Boolean);
+      }
+    } catch {
+      return value
+        .split(',')
+        .map((size) => size.trim())
+        .filter(Boolean);
+    }
+  }
+
+  return [];
+}
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -30,10 +57,16 @@ export default function DashboardPage() {
     name_en: '',
     name_ckb: '',
     name_arb: '',
-    price: '',
+    description_en: '',
+    description_ckb: '',
+    description_arb: '',
+    sizes: [] as string[],
+    colors: [] as string[],
+    newSize: '',
     image_url: '',
     image_file_name: '',
     category: '',
+    is_sold_out: false,
   });
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState('');
@@ -43,7 +76,6 @@ export default function DashboardPage() {
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
-  // Check authentication on mount
   useEffect(() => {
     const isAuth = localStorage.getItem('adminAuth');
     if (!isAuth) {
@@ -55,7 +87,6 @@ export default function DashboardPage() {
     setLoading(false);
   }, [router, locale]);
 
-  // Fetch items from database
   const fetchItems = async () => {
     try {
       const response = await fetch('/api/menu');
@@ -77,7 +108,6 @@ export default function DashboardPage() {
     }
   };
 
-  // Handle logout
   const handleLogout = async () => {
     try {
       await fetch('/api/auth/logout', { method: 'POST' });
@@ -89,8 +119,7 @@ export default function DashboardPage() {
     router.push(`/${locale}/login`);
   };
 
-  // Handle form input
-  const handleInputChange = async (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleInputChange = async (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, files } = e.target as HTMLInputElement;
     
     if (name === 'image_file' && files && files[0]) {
@@ -102,11 +131,9 @@ export default function DashboardPage() {
         console.log('📤 Starting server-side upload...');
         console.log('  File:', file.name, '(' + file.size + ' bytes)');
         
-        // Create FormData for file upload
         const formData = new FormData();
         formData.append('file', file);
         
-        // Step 1: Upload to backend (which uploads to ImageKit)
         const uploadRes = await fetch('/api/upload', {
           method: 'POST',
           body: formData,
@@ -134,7 +161,6 @@ export default function DashboardPage() {
         setMessageType('success');
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
-        // eslint-disable-next-line no-console
         console.error('Upload error:', errorMessage);
         setMessage(`هەڵە: ${errorMessage}`);
         setMessageType('error');
@@ -147,15 +173,38 @@ export default function DashboardPage() {
     }
   };
 
-  // Handle form submission
+  const addSize = () => {
+    if (formData.newSize.trim()) {
+      setFormData((prev) => ({
+        ...prev,
+        sizes: [...prev.sizes, prev.newSize.trim()],
+        newSize: '',
+      }));
+    }
+  };
+
+  const removeSize = (index: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      sizes: prev.sizes.filter((_, i) => i !== index),
+    }));
+  };
+
+  const toggleSoldOut = () => {
+    setFormData((prev) => ({
+      ...prev,
+      is_sold_out: !prev.is_sold_out
+    }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
     setMessage('');
 
     try {
-      if (!formData.name_en || !formData.name_ckb || !formData.name_arb || !formData.price) {
-        setMessage('براکو ناو (ئینگلێزی، کوردی و عەرەبی) و نرخ پڕ بکە');
+      if (!formData.name_en || !formData.name_ckb || !formData.name_arb) {
+        setMessage('براکو ناو (ئینگلێزی، کوردی و عەرەبی) پڕ بکە');
         setMessageType('error');
         setSubmitting(false);
         return;
@@ -177,24 +226,22 @@ export default function DashboardPage() {
           name_en: formData.name_en,
           name_ckb: formData.name_ckb,
           name_arb: formData.name_arb,
-          price: parseInt(formData.price),
+          description_en: formData.description_en,
+          description_ckb: formData.description_ckb,
+          description_arb: formData.description_arb,
+          sizes: formData.sizes,
+          colors: formData.colors,
+          price: '',
           image_url: formData.image_url,
           category: formData.category,
+          is_sold_out: formData.is_sold_out,
         }),
       });
 
       if (response.ok) {
         setMessage('خواردن بسەرکەوتوویی زیادکرا!');
         setMessageType('success');
-        setFormData({ 
-          name_en: '', 
-          name_ckb: '', 
-          name_arb: '', 
-          price: '', 
-          image_url: '', 
-          image_file_name: '', 
-          category: '' 
-        });
+        resetForm();
         setShowAddModal(false);
         fetchItems();
       } else {
@@ -210,14 +257,12 @@ export default function DashboardPage() {
     setSubmitting(false);
   };
 
-  // Handle delete item
   const handleDelete = async (id?: number) => {
     if (!id) return;
     setDeleteId(id);
     setShowDeleteDialog(true);
   };
 
-  // Confirm delete
   const confirmDelete = async () => {
     if (!deleteId) return;
 
@@ -240,22 +285,43 @@ export default function DashboardPage() {
     setDeleteId(null);
   };
 
-  // Handle edit button click
+  const normalizeColors = (value: unknown): string[] => {
+    if (Array.isArray(value)) {
+      return value.filter(color => typeof color === 'string' && color.match(/^#[0-9A-F]{6}$/i));
+    }
+    if (typeof value === 'string') {
+      try {
+        const parsed = JSON.parse(value);
+        if (Array.isArray(parsed)) {
+          return parsed.filter(color => typeof color === 'string' && color.match(/^#[0-9A-F]{6}$/i));
+        }
+      } catch {
+        return [];
+      }
+    }
+    return [];
+  };
+
   const handleEditClick = (item: MenuItem) => {
     setEditingId(item.id || null);
     setFormData({
       name_en: item.name_en || '',
       name_ckb: item.name_ckb || '',
       name_arb: item.name_arb || '',
-      price: item.price.toString(),
+      description_en: (item as any).description_en || '',
+      description_ckb: (item as any).description_ckb || '',
+      description_arb: (item as any).description_arb || '',
+      sizes: normalizeSizes((item as any).sizes),
+      colors: normalizeColors((item as any).colors),
+      newSize: '',
       image_url: item.image_url,
       image_file_name: '',
       category: item.category || '',
+      is_sold_out: (item as any).is_sold_out || false,
     });
     setShowEditModal(true);
   };
 
-  // Handle edit submission
   const handleEditSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingId) return;
@@ -273,24 +339,22 @@ export default function DashboardPage() {
           name_en: formData.name_en,
           name_ckb: formData.name_ckb,
           name_arb: formData.name_arb,
-          price: parseInt(formData.price),
+          description_en: formData.description_en,
+          description_ckb: formData.description_ckb,
+          description_arb: formData.description_arb,
+          colors: formData.colors,
+          sizes: formData.sizes,
+          price: '',
           image_url: formData.image_url,
           category: formData.category,
+          is_sold_out: formData.is_sold_out,
         }),
       });
 
       if (response.ok) {
         setMessage('خواردن نوێکراوە!');
         setMessageType('success');
-        setFormData({ 
-          name_en: '', 
-          name_ckb: '', 
-          name_arb: '', 
-          price: '', 
-          image_url: '', 
-          image_file_name: '', 
-          category: '' 
-        });
+        resetForm();
         setShowEditModal(false);
         setEditingId(null);
         fetchItems();
@@ -306,6 +370,24 @@ export default function DashboardPage() {
     setSubmitting(false);
   };
 
+  const resetForm = () => {
+    setFormData({
+      name_en: '',
+      name_ckb: '',
+      name_arb: '',
+      description_en: '',
+      description_ckb: '',
+      description_arb: '',
+      sizes: [],
+      colors: [],
+      newSize: '',
+      image_url: '',
+      image_file_name: '',
+      category: '',
+      is_sold_out: false,
+    });
+  };
+
   if (loading) {
     return <div>Loading.</div>;
   }
@@ -317,7 +399,6 @@ export default function DashboardPage() {
   return (
     <ImageKitProvider urlEndpoint={process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT || ''}>
       <div className="min-h-screen bg-white">
-      {/* Header */}
       <div className="bg-white shadow-md sticky top-0 z-30">
         <div className="max-w-7xl mx-auto px-4 md:px-8 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -344,79 +425,119 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Main Content */}
       <div className="max-w-6xl mx-auto px-4 md:px-8 py-8">
         <div className="w-full mb-4 flex flex-col md:flex-row md:items-center md:justify-end gap-2">
           <Button
-            onClick={() => setShowAddModal(true)}
+            onClick={() => {
+              resetForm();
+              setShowAddModal(true);
+            }}
             className="bg-[#386641] hover:bg-green-700 text-white rounded-lg px-6 py-3 font-bold flex items-center gap-2 w-full md:w-auto md:ml-auto"
           >
             <Plus className="w-5 h-5" />
-            زیادکردنی خواردنی نوێ
+            زیادکردنی کاڵای نوێ
           </Button>
         </div>
 
-        {/* Item count below button, above grid */}
         <div className="w-full mb-4 flex justify-center">
           <h2 className="text-xl font-bold text-gray-800">
-            ژمارەی خواردنەکان : <span className="text-[#386641]">{items.length}</span>
+            ژمارەی کاڵاکان : <span className="text-[#386641]">{items.length}</span>
           </h2>
         </div>
 
-        {/* Items Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {items.length === 0 ? (
             <div className="col-span-full text-center py-12 bg-white rounded-xl">
               <p className="text-gray-500 text-lg">هیچ خواردنێک بەردەست نییە!</p>
             </div>
           ) : (
-            items.map((item, idx) => (
-              <div key={item.id || idx} className="bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition-shadow flex flex-col m-1 border border-gray-100">
-                <div className="relative">
-                  <IKImage
-                    src={getAdminImageUrl(item.image_url)}
-                    alt={item.name_en}
-                    width={300}
-                    height={200}
-                    className="w-full h-36 sm:h-44 object-cover"
-                  />
-                </div>
-                <div className="p-3 sm:p-4 flex-1 flex flex-col justify-between">
-                  <div>
-                    <p className="font-bold text-base sm:text-lg text-gray-900 truncate">{item.name_en}</p>
-                    <p className="font-bold text-sm sm:text-base text-gray-700 mb-1 sm:mb-2 truncate">{item.name_ckb}</p>
-                    {item.name_arb && <p className="font-bold text-sm sm:text-base text-gray-700 mb-1 sm:mb-2 truncate">{item.name_arb}</p>}
-                    <p className="text-xs sm:text-sm text-[#386641] font-bold mb-2 sm:mb-3">{item.price} دینار</p>
-                    {item.category && (
-                      <p className="text-xs text-gray-500 mb-2 sm:mb-3">بەش: {item.category}</p>
-                    )}
+            items.map((item, idx) => {
+              const hasNameArb = !!item.name_arb;
+              const hasCategory = !!item.category;
+              const itemSizes = normalizeSizes((item as any).sizes);
+              const itemColors = normalizeColors((item as any).colors);
+              
+              return (
+                <div key={item.id || idx} className="bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition-shadow flex flex-col m-1 border border-gray-100">
+                  <div className="relative">
+                    <IKImage
+                      src={getAdminImageUrl(item.image_url)}
+                      alt={item.name_en}
+                      width={300}
+                      height={200}
+                      className="w-full h-36 sm:h-44 object-cover"
+                    />
                   </div>
-                  <div className="flex gap-2 mt-2">
-                    <button
-                      onClick={() => handleEditClick(item)}
-                      className="flex-1 bg-blue-500 hover:bg-blue-600 text-white rounded-lg p-2 transition flex items-center justify-center gap-2 font-semibold text-xs sm:text-sm"
-                    >
-                      <Edit className="w-4 h-4" />
-                      گۆڕین
-                    </button>
-                    <button
-                      onClick={() => handleDelete(item.id)}
-                      className="flex-1 bg-red-500 hover:bg-red-600 text-white rounded-lg p-2 transition flex items-center justify-center gap-2 font-semibold text-xs sm:text-sm"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                      سڕینەوە
-                    </button>
+                  <div className="p-3 sm:p-4 flex-1 flex flex-col justify-between">
+                    <div>
+                      <p className="font-bold text-base sm:text-lg text-gray-900 truncate">{item.name_en}</p>
+                      <p className="font-bold text-sm sm:text-base text-gray-700 mb-1 sm:mb-2 truncate">{item.name_ckb}</p>
+                      {hasNameArb && (
+                        <p className="font-bold text-sm sm:text-base text-gray-700 mb-1 sm:mb-2 truncate">{item.name_arb}</p>
+                      )}
+                      {itemSizes.length > 0 && (
+                        <div className="mb-2 sm:mb-3 space-y-1">
+                          {itemSizes.reduce((rows: string[][], size, index) => {
+                            const rowIndex = Math.floor(index / 2);
+                            if (!rows[rowIndex]) rows[rowIndex] = [];
+                            rows[rowIndex].push(size);
+                            return rows;
+                          }, []).map((row, rowIndex) => (
+                            <div key={rowIndex} className="flex gap-2">
+                              {row.map((size) => (
+                                <span
+                                  key={size}
+                                  className="flex-1 rounded-md bg-gray-100 px-2 py-1 text-center text-xs font-bold text-gray-700"
+                                >
+                                  {size}
+                                </span>
+                              ))}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      {itemColors.length > 0 && (
+                        <div className="mb-2 sm:mb-3 flex gap-2 flex-wrap">
+                          {itemColors.map((color) => (
+                            <div
+                              key={color}
+                              className="w-6 h-6 rounded-full border-2 border-gray-300 shadow"
+                              style={{ backgroundColor: color }}
+                              title={color}
+                            />
+                          ))}
+                        </div>
+                      )}
+                      {hasCategory && (
+                        <p className="text-xs text-gray-500 mb-2 sm:mb-3">بەش: {item.category}</p>
+                      )}
+                    </div>
+                    <div className="flex gap-2 mt-2">
+                      <button
+                        onClick={() => handleEditClick(item)}
+                        className="flex-1 bg-blue-500 hover:bg-blue-600 text-white rounded-lg p-2 transition flex items-center justify-center gap-2 font-semibold text-xs sm:text-sm"
+                      >
+                        <Edit className="w-4 h-4" />
+                        گۆڕین
+                      </button>
+                      <button
+                        onClick={() => handleDelete(item.id)}
+                        className="flex-1 bg-red-500 hover:bg-red-600 text-white rounded-lg p-2 transition flex items-center justify-center gap-2 font-semibold text-xs sm:text-sm"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                        سڕینەوە
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
 
 
       </div>
 
-      {/* Add Item Modal */}
       <Dialog open={showAddModal} onOpenChange={setShowAddModal}>
         <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
@@ -425,7 +546,6 @@ export default function DashboardPage() {
           </DialogHeader>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* English Name */}
             <div>
               <label htmlFor="name_en" className="block text-sm font-semibold text-gray-700 mb-2">
                 ناوی خواردن (English) *
@@ -442,7 +562,6 @@ export default function DashboardPage() {
               />
             </div>
 
-            {/* Kurdish Name */}
             <div>
               <label htmlFor="name_ckb" className="block text-sm font-semibold text-gray-700 mb-2">
                 ناوی خواردن (Kurdish) *
@@ -459,7 +578,6 @@ export default function DashboardPage() {
               />
             </div>
 
-            {/* Arabic Name */}
             <div>
               <label htmlFor="name_arb" className="block text-sm font-semibold text-gray-700 mb-2">
                 ناوی خواردن (Arabic) *
@@ -476,24 +594,94 @@ export default function DashboardPage() {
               />
             </div>
 
-            {/* Price */}
             <div>
-              <label htmlFor="price" className="block text-sm font-semibold text-gray-700 mb-2">
-                نرخ 
+              <label htmlFor="description_en" className="block text-sm font-semibold text-gray-700 mb-2">
+                وەسف (English)
               </label>
-              <input
-                id="price"
-                type="number"
-                name="price"
-                value={formData.price}
+              <textarea
+                id="description_en"
+                name="description_en"
+                value={formData.description_en}
                 onChange={handleInputChange}
-                placeholder="5000"
-                required
+                placeholder="Food description in English"
                 className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-[#386641] text-gray-900"
+                rows={3}
               />
             </div>
 
-            {/* Category */}
+            <div>
+              <label htmlFor="description_ckb" className="block text-sm font-semibold text-gray-700 mb-2">
+                وەسف (Kurdish)
+              </label>
+              <textarea
+                id="description_ckb"
+                name="description_ckb"
+                value={formData.description_ckb}
+                onChange={handleInputChange}
+                placeholder="وەسفی خواردنەی"
+                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-[#386641] text-gray-900"
+                rows={3}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="description_arb" className="block text-sm font-semibold text-gray-700 mb-2">
+                وەسف (Arabic)
+              </label>
+              <textarea
+                id="description_arb"
+                name="description_arb"
+                value={formData.description_arb}
+                onChange={handleInputChange}
+                placeholder="وصف الطعام"
+                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-[#386641] text-gray-900"
+                rows={3}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                سایز
+              </label>
+              <div className="flex gap-2 mb-2 flex-wrap">
+                {formData.sizes.map((size, index) => (
+                  <div key={index} className="flex items-center gap-1 bg-gray-100 px-3 py-1 rounded-full">
+                    <span className="text-sm text-gray-700">{size}</span>
+                    <button
+                      type="button"
+                      onClick={() => removeSize(index)}
+                      className="text-gray-500 hover:text-gray-700"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  name="newSize"
+                  value={formData.newSize}
+                  onChange={handleInputChange}
+                  placeholder="زیادکردنی سایز..."
+                  className="flex-1 px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-[#386641] text-gray-900"
+                />
+                <Button
+                  type="button"
+                  onClick={addSize}
+                  className="bg-[#386641] hover:bg-[#2a4d30] text-white"
+                >
+                  زیادکردن
+                </Button>
+              </div>
+            </div>
+
+            <ColorPicker 
+              colors={formData.colors} 
+              onChange={(newColors) => setFormData((prev) => ({ ...prev, colors: newColors }))}
+              maxColors={4}
+            />
+
             <div>
               <label htmlFor="category" className="block text-sm font-semibold text-gray-700 mb-2">
                 بەشەکان
@@ -514,7 +702,25 @@ export default function DashboardPage() {
               </select>
             </div>
 
-            {/* Image Upload */}
+            <div className="flex items-center justify-between">
+              <label className="block text-sm font-semibold text-gray-700">
+                نەماوە
+              </label>
+              <button
+                type="button"
+                onClick={toggleSoldOut}
+                className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[#386641] focus:ring-offset-2 ${
+                  formData.is_sold_out ? 'bg-red-600' : 'bg-gray-200'
+                }`}
+              >
+                <span
+                  className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
+                    formData.is_sold_out ? 'translate-x-7' : 'translate-x-1'
+                  }`}
+                />
+              </button>
+            </div>
+
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                  وێنە
@@ -535,7 +741,6 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {/* Image Preview */}
             {formData.image_url && (
               <div className="mt-4">
                 <IKImage
@@ -548,7 +753,6 @@ export default function DashboardPage() {
               </div>
             )}
 
-            {/* Message */}
             {message && (
               <div className={`p-3 rounded-lg text-sm font-semibold ${messageType === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                 {message}
@@ -560,15 +764,7 @@ export default function DashboardPage() {
                 type="button"
                 onClick={() => {
                   setShowAddModal(false);
-                  setFormData({ 
-                    name_en: '', 
-                    name_ckb: '', 
-                    name_arb: '', 
-                    price: '', 
-                    image_url: '', 
-                    image_file_name: '', 
-                    category: '' 
-                  });
+                  resetForm();
                   setMessage('');
                 }}
                 className="bg-gray-500 hover:bg-gray-600 text-white"
@@ -587,7 +783,6 @@ export default function DashboardPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Edit Dialog */}
       <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
         <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
@@ -596,7 +791,6 @@ export default function DashboardPage() {
           </DialogHeader>
 
           <form onSubmit={handleEditSubmit} className="space-y-4">
-            {/* English Name */}
             <div>
               <label htmlFor="edit-name_en" className="block text-sm font-semibold text-gray-700 mb-2">
                 ناوی خواردنەی (English)
@@ -612,7 +806,6 @@ export default function DashboardPage() {
               />
             </div>
 
-            {/* Kurdish Name */}
             <div>
               <label htmlFor="edit-name_ckb" className="block text-sm font-semibold text-gray-700 mb-2">
                 ناوی خواردنەی (Kurdish)
@@ -628,7 +821,6 @@ export default function DashboardPage() {
               />
             </div>
 
-            {/* Arabic Name */}
             <div>
               <label htmlFor="edit-name_arb" className="block text-sm font-semibold text-gray-700 mb-2">
                 ناوی خواردنەی (Arabic)
@@ -644,23 +836,94 @@ export default function DashboardPage() {
               />
             </div>
 
-            {/* Price */}
             <div>
-              <label htmlFor="edit-price" className="block text-sm font-semibold text-gray-700 mb-2">
-                نرخ
+              <label htmlFor="edit-description_en" className="block text-sm font-semibold text-gray-700 mb-2">
+                وەسف (English)
               </label>
-              <input
-                id="edit-price"
-                type="number"
-                name="price"
-                value={formData.price}
+              <textarea
+                id="edit-description_en"
+                name="description_en"
+                value={formData.description_en}
                 onChange={handleInputChange}
-                required
+                placeholder="Food description in English"
                 className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-[#386641] text-gray-900"
+                rows={3}
               />
             </div>
 
-            {/* Category */}
+            <div>
+              <label htmlFor="edit-description_ckb" className="block text-sm font-semibold text-gray-700 mb-2">
+                وەسف (Kurdish)
+              </label>
+              <textarea
+                id="edit-description_ckb"
+                name="description_ckb"
+                value={formData.description_ckb}
+                onChange={handleInputChange}
+                placeholder="وەسفی خواردنەی"
+                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-[#386641] text-gray-900"
+                rows={3}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="edit-description_arb" className="block text-sm font-semibold text-gray-700 mb-2">
+                وەسف (Arabic)
+              </label>
+              <textarea
+                id="edit-description_arb"
+                name="description_arb"
+                value={formData.description_arb}
+                onChange={handleInputChange}
+                placeholder="وصف الطعام"
+                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-[#386641] text-gray-900"
+                rows={3}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                سایز
+              </label>
+              <div className="flex gap-2 mb-2 flex-wrap">
+                {formData.sizes.map((size, index) => (
+                  <div key={index} className="flex items-center gap-1 bg-gray-100 px-3 py-1 rounded-full">
+                    <span className="text-sm text-gray-700">{size}</span>
+                    <button
+                      type="button"
+                      onClick={() => removeSize(index)}
+                      className="text-gray-500 hover:text-gray-700"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  name="newSize"
+                  value={formData.newSize}
+                  onChange={handleInputChange}
+                  placeholder="زیادکردنی سایز..."
+                  className="flex-1 px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-[#386641] text-gray-900"
+                />
+                <Button
+                  type="button"
+                  onClick={addSize}
+                  className="bg-[#386641] hover:bg-[#2a4d30] text-white"
+                >
+                  زیادکردن
+                </Button>
+              </div>
+            </div>
+
+            <ColorPicker 
+              colors={formData.colors} 
+              onChange={(newColors) => setFormData((prev) => ({ ...prev, colors: newColors }))}
+              maxColors={4}
+            />
+
             <div>
               <label htmlFor="edit-category" className="block text-sm font-semibold text-gray-700 mb-2">
                 بەشەکان
@@ -681,7 +944,25 @@ export default function DashboardPage() {
               </select>
             </div>
 
-            {/* Image Upload */}
+            <div className="flex items-center justify-between">
+              <label className="block text-sm font-semibold text-gray-700">
+                نەماوە
+              </label>
+              <button
+                type="button"
+                onClick={toggleSoldOut}
+                className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[#386641] focus:ring-offset-2 ${
+                  formData.is_sold_out ? 'bg-red-600' : 'bg-gray-200'
+                }`}
+              >
+                <span
+                  className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
+                    formData.is_sold_out ? 'translate-x-7' : 'translate-x-1'
+                  }`}
+                />
+              </button>
+            </div>
+
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 وێنە بسووڕینەوە
@@ -713,7 +994,6 @@ export default function DashboardPage() {
               )}
             </div>
 
-            {/* Message in Edit Dialog */}
             {message && (
               <div className={`p-3 rounded-lg text-sm font-semibold ${messageType === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                 {message}
@@ -726,15 +1006,7 @@ export default function DashboardPage() {
                 onClick={() => {
                   setShowEditModal(false);
                   setEditingId(null);
-                  setFormData({ 
-                    name_en: '', 
-                    name_ckb: '', 
-                    name_arb: '', 
-                    price: '', 
-                    image_url: '', 
-                    image_file_name: '', 
-                    category: '' 
-                  });
+                  resetForm();
                   setMessage('');
                   setMessageType('success');
                 }}
@@ -754,7 +1026,6 @@ export default function DashboardPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation Dialog */}
       <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
@@ -764,7 +1035,6 @@ export default function DashboardPage() {
             </DialogDescription>
           </DialogHeader>
 
-          {/* Message in Delete Dialog */}
           {message && (
             <div className={`p-3 rounded-lg text-sm font-semibold ${messageType === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
               {message}

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useTransition, useMemo } from 'react';
-import { Search, Utensils, Pizza, Coffee, Salad, Egg, ArrowDownNarrowWideIcon, Home, Beef, BottleWine } from 'lucide-react';
+import { Search, Utensils, Pizza, Coffee, Salad, Egg, ArrowDownNarrowWideIcon, Home, Beef, BottleWine, Fan } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import MenuGrid from '@/components/MenuGrid';
 import { useLocale } from 'next-intl';
@@ -35,7 +35,6 @@ function normalizeCategory(value?: string | null): string {
 export default function MenuSearch({ items }: MenuSearchProps) {
   const locale = useLocale();
   const [searchQuery, setSearchQuery] = useState('');
-  const [isSortedByPrice, setIsSortedByPrice] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   
   // useTransition for non-blocking category filtering
@@ -57,17 +56,17 @@ export default function MenuSearch({ items }: MenuSearchProps) {
   };
 
   const categories = [
-    { id: 'all', name: locale === 'en' ? 'All Items' : locale === 'ar' ? 'جميع الأصناف' : ' هەموو خواردنەکان', icon: Home },
-    { id: 'main', name: locale === 'en' ? 'Main Dishes' : locale === 'ar' ? 'الأطباق الرئيسية' : 'خواردنە سەرەکیەکان', icon: Utensils },
-    { id: 'pizza', name: locale === 'en' ? 'Roasted' : locale === 'ar' ? 'مشويات' : 'برژاو', icon: Beef },
+    { id: 'all', name: locale === 'en' ? 'All Items' : locale === 'ar' ? 'جميع الأصناف' : ' هەموو کاڵاکان', icon: Home },
+    { id: 'main', name: locale === 'en' ? 'Main Dishes' : locale === 'ar' ? 'الأطباق الرئيسية' : ' گووڵەکان', icon: Fan },
+    { id: 'pizza', name: locale === 'en' ? 'Roasted' : locale === 'ar' ? 'مشويات' : 'سلیکۆنەکان', icon: Beef },
     { id: 'drinks', name: locale === 'en' ? 'Drinks' : locale === 'ar' ? 'مشروبات' : 'خواردنەوە', icon: BottleWine },
     { id: 'appetizers', name: locale === 'en' ? 'Appetizers' : locale === 'ar' ? 'المقبلات' : 'مقەبیلات', icon: Salad },
     { id: 'breakfast', name: locale === 'en' ? 'Breakfast' : locale === 'ar' ? 'فطور' : 'بەیانیان', icon: Egg },
   ];
 
   const categoryMap: { [key: string]: string } = {
-    'main': locale === 'en' ? 'Main Dishes' : locale === 'ar' ? 'الأطباق الرئيسية' : 'خواردنە سەرەکیەکان',
-    'pizza': locale === 'en' ? 'Roasted' : locale === 'ar' ? 'مشويات' : 'برژاو',
+    'main': locale === 'en' ? 'Main Dishes' : locale === 'ar' ? 'الأطباق الرئيسية' : 'هەموو کاڵاکان',
+    'pizza': locale === 'en' ? 'Roasted' : locale === 'ar' ? 'مشويات' : 'گووڵەکان',
     'drinks': locale === 'en' ? 'Drinks' : locale === 'ar' ? 'مشروبات' : 'خواردنەوە',
     'appetizers': locale === 'en' ? 'Appetizers' : locale === 'ar' ? 'المقبلات' : 'مقەبیلات',
     'breakfast': locale === 'en' ? 'Breakfast' : locale === 'ar' ? 'فطور' : 'بەیانیان',
@@ -85,12 +84,8 @@ export default function MenuSearch({ items }: MenuSearchProps) {
       return matchesSearch && matchesCategory;
     });
 
-    if (isSortedByPrice) {
-      result = [...result].sort((a, b) => a.price - b.price);
-    }
-
     return result;
-  }, [items, searchQuery, selectedCategory, isSortedByPrice, locale]);
+  }, [items, searchQuery, selectedCategory, locale]);
 
   // Group items by category when viewing "all"
   const groupedItems: { [key: string]: MenuItem[] } = useMemo(() => {
@@ -156,23 +151,9 @@ export default function MenuSearch({ items }: MenuSearchProps) {
           })}
         </div>
         
-        {/* Search Input and Price Filter */}
-        <div className="w-full md:max-w-2xl flex-shrink-0 flex gap-2">
-          {/* Price Sort Button */}
-          <button
-            onClick={() => setIsSortedByPrice(!isSortedByPrice)}
-            className={`px-3 py-[11px] rounded-lg border transition-all duration-200 flex items-center justify-center ${
-              isSortedByPrice
-                ? 'bg-[#386641] text-white border-[#386641]'
-                : 'bg-transparent text-gray-600 border-gray-300 hover:border-[#386641] hover:text-[#386641]'
-            }`}
-            title="Sort by price"
-          >
-            <ArrowDownNarrowWideIcon className="w-4 h-4" />
-          </button>
-
-          {/* Search Input */}
-          <div className="relative h-full flex-1">
+        {/* Search Input */}
+        <div className="w-full md:max-w-2xl flex-shrink-0">
+          <div className="relative h-full">
             {locale === 'en' ? (
               <>
                 <Input 
@@ -200,7 +181,7 @@ export default function MenuSearch({ items }: MenuSearchProps) {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <Input 
                   type="text" 
-                  placeholder="دەتهەوێت چی بخۆیت؟"
+                  placeholder=" بەدوای چی دەگەڕێیت؟"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-10 pr-4 py-6 md:py-5 rounded-lg border border-gray-300 focus:border-[#386641] focus:outline-none focus:ring-2 focus:ring-[#386641]/10 transition-all text-base placeholder:text-sm"
