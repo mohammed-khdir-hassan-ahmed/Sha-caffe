@@ -103,9 +103,9 @@ export default function CompanyShowcase({ isOpen, onClose }: CompanyShowcaseProp
                   </p>
                 </div>
                 <div className="bg-green-50 p-2 md:p-3 rounded-lg text-center">
-                  <p className="text-lg md:text-2xl font-bold text-[#000000]">15+</p>
+                  <p className="text-lg md:text-2xl font-bold text-[#000000]">12+</p>
                   <p className="text-[10px] md:text-sm text-gray-600">
-                    {locale === 'ar' ? 'سنة' : locale === 'ku' ? 'ساڵ' : 'Years'}
+                    {locale === 'ar' ? 'سنة' : locale === 'ku' ? 'ساڵ ئەزموون' : 'Years'}
                   </p>
                 </div>
                 <div className="bg-purple-50 p-2 md:p-3 rounded-lg text-center">
