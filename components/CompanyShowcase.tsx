@@ -38,7 +38,7 @@ export default function CompanyShowcase({ isOpen, onClose }: CompanyShowcaseProp
     <>
       {/* Modal Overlay */}
       {isOpen && (
-        <div className="fixed inset-0 z-50 bg-transparent flex items-center justify-center p-4" onClick={onClose}>
+        <div className="fixed inset-0 z-50 bg-transparent flex items-center justify-center " onClick={onClose}>
           {/* Modal Content */}
           <div
             className="relative bg-white rounded-xl shadow-2xl max-w-sm md:max-w-2xl w-full max-h-[85vh] md:max-h-[90vh] overflow-y-auto scrollbar-hide"
