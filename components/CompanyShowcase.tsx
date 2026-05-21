@@ -97,9 +97,9 @@ export default function CompanyShowcase({ isOpen, onClose }: CompanyShowcaseProp
               {/* Highlights */}
               <div className="grid grid-cols-3 gap-2 md:gap-3 mb-3 md:mb-6">
                 <div className="bg-blue-50 p-2 md:p-3 rounded-lg text-center">
-                  <p className="text-lg md:text-2xl font-bold text-[#000000]">100+</p>
+                  <p className="text-lg md:text-2xl font-bold text-[#000000]">100%</p>
                   <p className="text-[10px] md:text-sm text-gray-600">
-                    {locale === 'ar' ? 'مشروع' : locale === 'ku' ? 'پرۆژە' : 'Projects'}
+                    {locale === 'ar' ? 'ضمانت' : locale === 'ku' ? 'گەرەنتی' : 'Guarantee'}
                   </p>
                 </div>
                 <div className="bg-green-50 p-2 md:p-3 rounded-lg text-center">
@@ -109,9 +109,9 @@ export default function CompanyShowcase({ isOpen, onClose }: CompanyShowcaseProp
                   </p>
                 </div>
                 <div className="bg-purple-50 p-2 md:p-3 rounded-lg text-center">
-                  <p className="text-lg md:text-2xl font-bold text-[#000000]">50+</p>
+                  <p className="text-lg md:text-2xl font-bold text-[#000000]">100%</p>
                   <p className="text-[10px] md:text-sm text-gray-600">
-                    {locale === 'ar' ? 'فريق' : locale === 'ku' ? 'تیم' : 'Team'}
+                    {locale === 'ar' ? 'حد ثقه' : locale === 'ku' ? 'متمانە' : 'Trust'}
                   </p>
                 </div>
               </div>
