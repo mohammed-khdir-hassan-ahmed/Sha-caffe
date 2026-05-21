@@ -26,7 +26,7 @@ export default function Navbar() {
         {/* Left side - Logo */}
         <div className="w-14 h-14 md:w-16 md:h-16 flex-shrink-0">
           <Image
-            src="/image/image.png"
+            src="/image/image.jpeg"
             alt="Logo"
             width={100}
             height={100}
@@ -75,7 +75,7 @@ export default function Navbar() {
             <div className="flex flex-col items-center gap-2 mb-3.5 lg:mb-4 pb-2 border-b-2 border-gray-100">
               <div className="relative h-16 w-16 md:h-20 md:w-20 lg:h-24 lg:w-24 rounded-full bg-gradient-to-br from-gray-50 to-gray-100 p-1.5 flex items-center justify-center">
                 <Image
-                  src="/image/image.png"
+                  src="/image/image.jpeg"
                   alt="Logo"
                   fill
                   className="object-contain"
@@ -139,23 +139,27 @@ export default function Navbar() {
                   <span className="text-[8px] md:text-[9px] font-bold text-white drop-shadow">WhatsApp</span>
                 </a>
 
-                {/* Viber */}
+                {/* TikTok */}
                 <a
-                  href="viber://chat?number=9647504362141"
+                  href="https://www.tiktok.com/@shalawglass?_r=1&_t=ZS-96YLvXmntH2"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex-1 bg-gradient-to-br from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 rounded-lg p-1.5 md:p-2 flex flex-col items-center gap-0.5 transition-all hover:scale-110 shadow-md"
+                  className="flex-1 bg-gradient-to-br from-black to-gray-800 hover:from-gray-800 hover:to-black rounded-lg p-1.5 md:p-2 flex flex-col items-center gap-0.5 transition-all hover:scale-110 shadow-md"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="12"
                     height="12"
                     viewBox="0 0 24 24"
-                    fill="white"
+                    fill="none"
+                    stroke="white"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
                   >
-                    <path d="M11.398.002C9.473.028 5.331.344 3.014 2.467 1.294 4.177.693 6.698.623 9.82c-.06 3.11-.13 8.95 5.5 10.541v2.42s-.038.97.602 1.17c.79.25 1.24-.499 1.99-1.299l1.4-1.58c3.85.32 6.8-.419 7.14-.529.78-.25 5.181-.811 5.901-6.652.74-6.031-.36-9.831-2.34-11.551l-.01-.002c-.6-.55-3-2.3-8.37-2.32 0 0-.396-.025-1.038-.016zm.067 1.697c.545-.003.88.02.88.02 4.54.01 6.711 1.38 7.221 1.84 1.67 1.429 2.528 4.856 1.9 9.892-.6 4.88-4.17 5.19-4.83 5.4-.28.09-2.88.73-6.152.52 0 0-2.439 2.941-3.199 3.701-.12.13-.26.17-.35.15-.13-.03-.17-.19-.16-.41l.02-4.019c-4.771-1.32-4.491-6.302-4.441-8.902.06-2.6.55-4.732 2-6.222 1.99-1.8 5.681-2.053 7.511-1.941l-.4-.029zm.358 2.021a.362.362 0 0 0-.34.363c0 .2.161.363.361.363 2.932.01 5.3 2.379 5.311 5.311 0 .2.162.362.361.362s.36-.162.36-.362c-.01-3.333-2.7-6.027-6.032-6.037h-.021zm-3.041.94a.956.956 0 0 0-.6.231c-.32.26-.63.56-.91.9-.28.35-.17.47-.05.7.45.88 1.51 2.699 2.8 4.13s3.25 2.35 4.131 2.8c.23.12.35.23.71-.05.33-.28.63-.59.89-.91.26-.32.32-.44.23-.7-.21-.53-1.201-1.59-1.721-2.05-.46-.4-.84-.14-1.091.03-.25.16-.37.24-.52.24s-.27-.06-.44-.17c-.51-.31-1.141-.8-1.64-1.32-.51-.51-.99-1.14-1.311-1.65-.09-.17-.14-.29-.14-.44s.08-.27.24-.52c.17-.25.43-.631.03-1.091-.46-.52-1.52-1.511-2.05-1.721a.597.597 0 0 0-.21-.039l-.01-.002zm3.121 1.47a.36.36 0 0 0-.34.362c0 .2.162.362.361.362 2.133 0 3.871 1.738 3.871 3.871 0 .2.161.361.361.361s.36-.161.36-.361c0-2.535-2.058-4.595-4.592-4.595h-.021zm0 1.674a.36.36 0 0 0-.34.362c0 .2.161.362.36.362 1.345 0 2.44 1.096 2.44 2.441 0 .2.162.361.362.361s.361-.161.361-.361c0-1.744-1.42-3.164-3.162-3.164l-.021-.001z" />
+                    <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5" />
                   </svg>
-                  <span className="text-[8px] md:text-[9px] font-bold text-white drop-shadow">Viber</span>
+                  <span className="text-[8px] md:text-[9px] font-bold text-white drop-shadow">TikTok</span>
                 </a>
               </div>
             </div>

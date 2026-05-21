@@ -405,7 +405,7 @@ export default function DashboardPage() {
           <div className="flex items-center gap-4">
             <div className="w-12 h-12">
               <Image
-                src="/image/image.png"
+                src="/image/image.jpeg"
                 alt="Logo"
                 width={50}
                 height={50}
