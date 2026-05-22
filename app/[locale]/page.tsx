@@ -12,7 +12,7 @@ import { CATEGORIES } from '@/lib/categories';
 import { Home as HomeIcon, Gem, Sparkles, Flower2, Palette, Circle, Diamond, CheckCircle2, Zap } from 'lucide-react';
 import { useLocale } from 'next-intl';
 
-// Map icon names to actual Lucide components
+
 const ICON_COMPONENTS: Record<string, any> = {
   'Grid3x3': HomeIcon,
   'Gem': Gem,

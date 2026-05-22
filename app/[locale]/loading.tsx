@@ -7,7 +7,7 @@ export default function Loading() {
   const [show, setShow] = useState(true);
 
   useEffect(() => {
-    // Ensure the loading screen stays for 1.5 seconds
+
     const timer = setTimeout(() => setShow(false), 1500);
     return () => clearTimeout(timer);
   }, []);
