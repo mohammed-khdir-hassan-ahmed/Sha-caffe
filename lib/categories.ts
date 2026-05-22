@@ -131,3 +131,18 @@ export function getCategoryLabel(
 export function getCategoryValues(): string[] {
   return CATEGORIES.map((cat) => cat.value);
 }
+
+/**
+ * Get all categories excluding the "all" category
+ * Used for displaying selectable categories in UI
+ */
+export function getCategoriesExcludingAll(): Category[] {
+  return CATEGORIES.filter((cat) => cat.value !== 'all');
+}
+
+/**
+ * Get category values excluding "all"
+ */
+export function getCategoryValuesExcludingAll(): string[] {
+  return getCategoriesExcludingAll().map((cat) => cat.value);
+}

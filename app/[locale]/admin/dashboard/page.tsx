@@ -19,7 +19,7 @@ import { useLocale } from 'next-intl';
 import DashboardLanguageSwitcher from '@/components/DashboardLanguageSwitcher';
 import ColorPicker from '@/components/ColorPicker';
 import { type MenuItem } from '@/lib/db';
-import { CATEGORIES } from '@/lib/categories';
+import { CATEGORIES, getCategoriesExcludingAll } from '@/lib/categories';
 
 function normalizeSizes(value: unknown): string[] {
   if (Array.isArray(value)) {
@@ -688,7 +688,7 @@ export default function DashboardPage() {
                   className="w-full px-2 py-1.5 text-xs border-2 border-gray-300 rounded-lg focus:outline-none focus:border-[#000000] text-gray-900"
                 >
                   <option value="">هەڵبژاردنی بەشەکان</option>
-                  {CATEGORIES.map((cat) => (
+                  {getCategoriesExcludingAll().map((cat) => (
                     <option key={cat.value} value={cat.value}>
                       {cat.label_ckb}
                     </option>
@@ -939,7 +939,7 @@ export default function DashboardPage() {
                 className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-[#000000] text-gray-900"
               >
                 <option value="">هەڵبژاردنی بەشەکان</option>
-                {CATEGORIES.map((cat) => (
+                {getCategoriesExcludingAll().map((cat) => (
                   <option key={cat.value} value={cat.value}>
                     {cat.label_ckb}
                   </option>

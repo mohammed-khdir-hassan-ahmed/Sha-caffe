@@ -237,6 +237,13 @@ export default function OptimizedMenuItem({
           {displayName}
         </h3>
 
+        {/* Description */}
+        {description && (
+          <p className={`text-xs md:text-sm lg:text-sm line-clamp-2 leading-tight ${isRTL ? 'text-right lg:text-center' : 'text-center'} text-gray-600`}>
+            {description}
+          </p>
+        )}
+
         {/* Colors and Sizes - Compact with Icons */}
         <div className="flex flex-col gap-2 lg:gap-1.5 items-center w-full">
           {/* Colors */}

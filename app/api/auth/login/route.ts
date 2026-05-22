@@ -7,8 +7,8 @@ export async function POST(request: NextRequest) {
     console.log('🔐 Login attempt with username:', username);
 
     
-    const adminUsername = 'hama1';
-    const adminPassword = 'hama1';
+    const adminUsername = 'shalaw@gmail.com';
+    const adminPassword = 'shalaw2026';
 
     if (username === adminUsername && password === adminPassword) {
       console.log('✅ Credentials valid');
