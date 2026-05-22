@@ -181,7 +181,7 @@ export default function MenuSearch({ items }: MenuSearchProps) {
               <>
                 <Input 
                   type="text" 
-                  placeholder="What would you like to eat?"
+                  placeholder="What are you looking for?"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pr-10 pl-4 py-6 md:py-5 rounded-lg border border-gray-300 focus:border-[#000000] focus:outline-none focus:ring-2 focus:ring-[#000000]/10 transition-all text-base placeholder:text-sm"
@@ -193,7 +193,7 @@ export default function MenuSearch({ items }: MenuSearchProps) {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <Input 
                   type="text" 
-                  placeholder="ماذا تريد أن تأكل؟"
+                  placeholder="ماذا تورید؟"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-10 pr-4 py-6 md:py-5 rounded-lg border border-gray-300 focus:border-[#000000] focus:outline-none focus:ring-2 focus:ring-[#000000]/10 transition-all text-base placeholder:text-sm"
