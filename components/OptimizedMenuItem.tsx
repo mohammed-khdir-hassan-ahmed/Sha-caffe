@@ -82,6 +82,7 @@ export default function OptimizedMenuItem({
   const locale = useLocale();
   const [touchStart, setTouchStart] = useState({ x: 0, y: 0 });
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [isFavorite, setIsFavorite] = useState(false);
   
   // Get the appropriate name based on locale with proper fallbacks
   const getDisplayName = () => {
@@ -130,6 +131,8 @@ export default function OptimizedMenuItem({
     return 'Sold Out';
   };
 
+  const isRTL = locale === 'ku' || locale === 'ar';
+
   return (
     <motion.div
       role="button"
@@ -153,21 +156,55 @@ export default function OptimizedMenuItem({
           onSelect(item);
         }
       }}
-      initial={{ opacity: 0, scale: 0.8, rotateY: -20 }}
-      whileInView={{ opacity: 1, scale: 1, rotateY: 0 }}
+      initial={{ opacity: 0, x: isFromLeft ? -50 : 50 }}
+      whileInView={{ opacity: 1, x: 0 }}
       viewport={{ once: true, margin: '-50px' }}
-      transition={{ duration: 0.7, ease: 'easeOut', delay: (index % 4) * 0.1 }}
-      className={`overflow-hidden p-0 shadow-lg hover:shadow-xl transition-shadow duration-300 cursor-pointer rounded-lg bg-white flex flex-col h-full active:shadow-md ${
+      transition={{ duration: 0.6, ease: 'easeOut', delay: (index % 4) * 0.1 }}
+      dir={isRTL ? 'rtl' : 'ltr'}
+      className={`relative overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300 cursor-pointer rounded-2xl bg-white flex lg:flex-col items-center lg:items-stretch w-full lg:w-auto h-40 md:h-44 lg:h-full active:shadow-md ${
         isSoldOut ? 'opacity-60' : ''
       }`}
     >
-      {/* Image with Next.js Image component for optimization */}
-      <div className={`relative w-full h-44 md:h-48 overflow-hidden shrink-0 bg-gray-100 transition-opacity duration-300 ${
+      {/* Favorite Button - Top Right Mobile */}
+      <motion.button
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setIsFavorite(!isFavorite);
+        }}
+        onTouchEnd={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+        }}
+        animate={isFavorite ? { scale: [1, 1.3, 1], rotate: [0, 360] } : {}}
+        transition={{ duration: 0.5, ease: 'easeInOut' }}
+        className="absolute lg:hidden top-2 z-20 bg-white rounded-full p-2 shadow-lg hover:shadow-xl transition-all hover:scale-110 active:scale-95 pointer-events-auto"
+        style={{
+          [isRTL ? 'left' : 'right']: '0.5rem'
+        }}
+        aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+      >
+        <svg
+          className={`w-5 h-5 md:w-6 md:h-6 transition-all ${isFavorite ? 'fill-red-500' : 'fill-none text-gray-400'}`}
+          stroke={isFavorite ? 'none' : 'currentColor'}
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={isFavorite ? 0 : 2}
+            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+          />
+        </svg>
+      </motion.button>
+
+      {/* Image Section - RTL: Right Side, LTR: Left Side */}
+      <div className={`relative w-1/2 lg:w-full h-full lg:h-48 overflow-hidden shrink-0 bg-gradient-to-br from-gray-100 to-gray-50 transition-opacity duration-300 ${isRTL ? 'order-2 lg:order-1' : 'order-1'} ${
         imageLoaded ? 'opacity-100' : 'opacity-90'
       }`}>
         {isSoldOut && (
           <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-10">
-            <span className="text-white font-bold text-lg md:text-xl bg-red-600 px-4 py-2 rounded-lg shadow-lg">
+            <span className="text-white font-bold text-sm md:text-base bg-red-600 px-3 py-1.5 rounded-lg shadow-lg">
               {getSoldOutText()}
             </span>
           </div>
@@ -176,15 +213,15 @@ export default function OptimizedMenuItem({
           loader={imageKitLoader}
           src={item.image_url}
           alt={displayName}
-          width={300}
+          width={200}
           height={200}
           sizes={getResponsiveSizes('thumbnail')}
           priority={priority}
           placeholder="blur"
-          blurDataURL="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 200'%3E%3Crect fill='%23f3f4f6' width='300' height='200'/%3E%3C/svg%3E"
-          quality={70}
+          blurDataURL="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'%3E%3Crect fill='%23f3f4f6' width='200' height='200'/%3E%3C/svg%3E"
+          quality={75}
           loading={priority ? 'eager' : 'lazy'}
-          className="w-full h-full object-cover"
+          className={`w-full h-full object-cover ${isSoldOut ? 'grayscale' : ''}`}
           onLoadingComplete={() => setImageLoaded(true)}
           onError={(e) => {
             console.error(`Failed to load image for ${displayName}`);
@@ -192,52 +229,52 @@ export default function OptimizedMenuItem({
         />
       </div>
 
-      {/* Content */}
-      <div className="p-4 flex flex-col justify-between flex-1 gap-3">
-        <div className="flex flex-col gap-1">
-          {/* Name and Colors in Row */}
-          <div className="flex items-center gap-2 justify-between">
-            <div className={`font-bold text-sm md:text-base line-clamp-2 flex-1 ${isSoldOut ? 'line-through text-gray-500' : ''}`}>
-              {displayName}
-            </div>
-            {/* Color Badges */}
-            {itemColors.length > 0 && (
-              <div className="flex gap-1.5 flex-shrink-0">
+      {/* Content Section - RTL: Left Side, LTR: Right Side */}
+      <div className={`w-1/2 lg:w-full px-4 md:px-6 lg:px-4 py-3 md:py-4 lg:py-3 flex flex-col justify-center items-center h-full gap-2.5 ${isRTL ? 'order-1 lg:order-2' : 'order-2'}`}>
+        {/* Title */}
+        <h3 className={`font-extrabold text-sm md:text-base lg:text-base line-clamp-2 leading-tight ${isRTL ? 'text-right lg:text-center' : 'text-center'} ${isSoldOut ? 'line-through text-gray-400' : 'text-gray-900'}`}>
+          {displayName}
+        </h3>
+
+        {/* Colors and Sizes - Compact with Icons */}
+        <div className="flex flex-col gap-2 lg:gap-1.5 items-center w-full">
+          {/* Colors */}
+          {itemColors.length > 0 && (
+            <div className="flex items-center gap-2 justify-center">
+              <div className={`flex gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                 {itemColors.map((color) => (
                   <div
                     key={color}
-                    className="w-5 h-5 rounded-full border border-gray-300 shadow-sm"
+                    className="w-5 h-5 md:w-6 md:h-6 lg:w-5 lg:h-5 rounded-full border-2 border-gray-200 shadow-md flex-shrink-0 hover:scale-110 transition-transform"
                     style={{ backgroundColor: color }}
                     title={color}
                   />
                 ))}
               </div>
-            )}
-          </div>
-          {description && (
-            <div className="text-xs text-gray-500 line-clamp-2">
-              {description}
             </div>
           )}
-        </div>
 
-        {/* Size Selection (if item has sizes) */}
-        {sizeRows.length > 0 && (
-          <div className="flex flex-col gap-2">
-            {sizeRows.map((row, rowIdx) => (
-              <div key={rowIdx} className="flex gap-2">
-                {row.map((size: string) => (
+          {/* Sizes */}
+          {itemSizes.length > 0 && (
+            <div className={`flex items-center gap-2 justify-center flex-wrap ${isRTL ? 'flex-row-reverse' : ''}`}>
+              <div className={`flex gap-2 flex-wrap justify-center ${isRTL ? 'flex-row-reverse' : ''}`}>
+                {itemSizes.slice(0, 2).map((size: string) => (
                   <div
                     key={size}
-                    className="flex-1 px-2 py-1 text-xs font-bold rounded-md bg-gray-100 text-gray-700 text-center"
+                    className="px-2.5 py-1 lg:px-2 lg:py-0.5 text-xs lg:text-xs font-bold rounded-md bg-gradient-to-br from-gray-50 to-gray-100 text-gray-800 border border-gray-200 shadow-sm hover:from-gray-100 hover:to-gray-150 transition-all"
                   >
                     {size}
                   </div>
                 ))}
+                {itemSizes.length > 2 && (
+                  <div className="px-2.5 py-1 lg:px-2 lg:py-0.5 text-xs lg:text-xs font-bold rounded-md bg-gradient-to-br from-blue-50 to-blue-100 text-blue-800 border border-blue-200 shadow-sm hover:from-blue-100 hover:to-blue-150 transition-all">
+                    +{itemSizes.length - 2}
+                  </div>
+                )}
               </div>
-            ))}
-          </div>
-        )}
+            </div>
+          )}
+        </div>
       </div>
     </motion.div>
   );

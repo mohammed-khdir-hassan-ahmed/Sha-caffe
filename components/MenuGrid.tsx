@@ -102,9 +102,11 @@ export default function MenuGrid({ items }: MenuGridProps) {
     return 'Sold Out';
   };
 
+  const isRTL = locale === 'ku' || locale === 'ar';
+
   return (
     <>
-      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+      <div className="flex flex-col lg:grid lg:grid-cols-4 gap-3 md:gap-4 w-full" dir={isRTL ? 'rtl' : 'ltr'}>
         {items.map((item, index) => (
           <OptimizedMenuItem
             key={item.id}

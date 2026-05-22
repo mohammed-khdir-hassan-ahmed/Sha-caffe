@@ -223,11 +223,11 @@ export default function MenuSearch({ items }: MenuSearchProps) {
       )}
 
       {/* Menu Grid */}
-      <div className="mt-6">
+      <div className="mt-6 w-full">
         {selectedCategory === 'all' && Object.keys(groupedItems).length > 0 ? (
-          <div className="flex flex-col gap-10">
+          <div className="flex flex-col gap-10 w-full">
             {Object.entries(groupedItems).map(([categoryId, categoryItems]) => (
-              <div key={categoryId}>
+              <div key={categoryId} className="w-full">
                 <div className="mb-6 md:mb-8">
                   {/* Mobile: Stacked layout */}
                   <div className="md:hidden flex items-center justify-center gap-3">
