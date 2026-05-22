@@ -1,7 +1,3 @@
-/**
- * ImageKit URL optimization utility
- * Adds WebP compression, quality settings, and caching for best performance
- */
 
 export interface ImageOptimizationOptions {
   width?: number;
@@ -27,7 +23,6 @@ export function getOptimizedImageUrl(
     format = 'webp', // Use WebP for best compression
   } = options;
 
-  // Build transformation parameters
   const params = new URLSearchParams();
   
   if (width) params.append('w', width.toString());

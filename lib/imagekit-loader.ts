@@ -1,7 +1,3 @@
-/**
- * Custom ImageKit Loader for Next.js Image Component
- * Handles dynamic resizing, quality optimization, and format negotiation via URL transformations
- */
 
 import { ImageLoaderProps } from 'next/image';
 
