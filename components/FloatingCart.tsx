@@ -31,7 +31,7 @@ export default function FloatingCart() {
     phonePlaceholder: locale === 'en' ? 'Phone Number' : locale === 'ar' ? 'رقم الهاتف' : 'ژمارەی تەلەفۆن',
     addressPlaceholder: locale === 'en' ? 'Delivery Address' : locale === 'ar' ? 'العنوان' : 'ناونیشانی گەیاندن',
     sendOrder: locale === 'en' ? 'Send Order via WhatsApp' : locale === 'ar' ? 'إرسال الطلب عبر الواتساب' : 'ناردنی داواکاری بە whatsapp',
-    total: locale === 'en' ? 'Total' : locale === 'ar' ? 'المجموع' : 'کۆیی گشتی',
+    total: locale === 'en' ? 'Total' : locale === 'ar' ? 'المجموع' : 'کۆی گشتی',
     size: locale === 'en' ? 'Size' : locale === 'ar' ? 'الحجم' : 'سایز',
     color: locale === 'en' ? 'Color' : locale === 'ar' ? 'اللون' : 'ڕەنگ',
     emptyCart: locale === 'en' ? 'Your cart is empty' : locale === 'ar' ? 'سلتك فارغة' : 'سەبەتەکەت بەتاڵە',
@@ -62,7 +62,7 @@ export default function FloatingCart() {
   };
 
   const formatPrice = (amount: number) => {
-    if (amount === 0) return locale === 'en' ? 'Dynamic Price' : 'نرخی دیارینەکراو';
+    if (amount === 0) return locale === 'en' ? 'Dynamic Price' : 'نرخی دیارینەکراوە';
     return amount.toLocaleString() + (locale === 'en' ? ' IQD' : ' دینار');
   };
 
