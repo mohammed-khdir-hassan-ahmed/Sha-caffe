@@ -312,7 +312,7 @@ export default function FloatingCart() {
                     placeholder={t.namePlaceholder}
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full bg-white border-gray-200 text-base font-medium rounded-lg h-10"
+                    className="w-full bg-white border-gray-200 text-xs md:text-sm placeholder:text-xs font-medium rounded-lg h-9"
                   />
                   <Input
                     type="tel"
@@ -320,7 +320,10 @@ export default function FloatingCart() {
                     placeholder={t.phonePlaceholder}
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    className="w-full bg-white border-gray-200 text-base font-medium rounded-lg h-10"
+                    className={`w-full bg-white border-gray-200 text-xs md:text-sm placeholder:text-xs font-medium rounded-lg h-9 ${
+                      isRTL ? 'text-right' : 'text-left'
+                    }`}
+                    dir={isRTL ? 'rtl' : 'ltr'}
                   />
                   <Input
                     type="text"
@@ -328,7 +331,7 @@ export default function FloatingCart() {
                     placeholder={t.addressPlaceholder}
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
-                    className="w-full bg-white border-gray-200 text-base font-medium rounded-lg h-10"
+                    className="w-full bg-white border-gray-200 text-xs md:text-sm placeholder:text-xs font-medium rounded-lg h-9"
                   />
                   <Button
                     type="submit"
