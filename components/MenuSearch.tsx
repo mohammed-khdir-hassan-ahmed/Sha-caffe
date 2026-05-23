@@ -189,34 +189,49 @@ export default function MenuSearch({ items }: MenuSearchProps) {
             padding: 1.5px;
             background: conic-gradient(
               from var(--border-angle),
-              #f1f5f9 0%,
-              #cbd5e1 25%,
-              #e2e8f0 50%,
+              #e2e8f0 0%,
+              #94a3b8 25%,
+              #f1f5f9 50%,
               #cbd5e1 75%,
-              #f1f5f9 100%
+              #e2e8f0 100%
             );
-            animation: borderRotate 5s linear infinite;
+            animation: borderRotate 6s linear infinite;
+            box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+          }
+          .animated-border-wrapper:hover {
+            animation-duration: 4s;
+            box-shadow: 0 4px 25px -2px rgba(0, 0, 0, 0.08);
           }
           .animated-border-wrapper:focus-within {
             background: conic-gradient(
               from var(--border-angle),
-              #f8fafc 0%,
-              #94a3b8 20%,
-              #e2e8f0 40%,
-              #64748b 60%,
-              #e2e8f0 80%,
-              #f8fafc 100%
+              #0f172a 0%,
+              #475569 20%,
+              #cbd5e1 40%,
+              #000000 60%,
+              #94a3b8 80%,
+              #0f172a 100%
             );
             animation: borderRotate 3s linear infinite;
+            box-shadow: 0 0 25px 2px rgba(0, 0, 0, 0.12);
           }
           .animated-border-inner {
-            background: white;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
             border-radius: 11px;
             position: relative;
+            transition: background 0.3s ease;
+          }
+          .animated-border-wrapper:focus-within .animated-border-inner {
+            background: rgba(255, 255, 255, 1);
           }
         `}</style>
-        <div className="w-full md:max-w-2xl flex-shrink-0">
-          <div className="animated-border-wrapper">
+        <div className="w-full md:max-w-2xl flex-shrink-0 relative group">
+          {/* Ambient glass-prism background glow */}
+          <div className="absolute -inset-0.5 bg-gradient-to-r from-gray-300 via-slate-400 to-gray-500 rounded-[13px] blur-lg opacity-0 group-hover:opacity-10 group-focus-within:opacity-20 transition duration-500 pointer-events-none z-0"></div>
+          
+          <div className="animated-border-wrapper relative z-10">
             <div className="animated-border-inner">
               <div className="relative h-full">
                 {locale === 'en' ? (
@@ -226,7 +241,7 @@ export default function MenuSearch({ items }: MenuSearchProps) {
                       placeholder="What are you looking for?"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full pr-10 pl-4 py-6 md:py-5 rounded-[10px] border-0 focus:outline-none focus:ring-0 transition-all text-base placeholder:text-sm bg-transparent"
+                      className="w-full pr-10 pl-4 py-6 md:py-5 rounded-[10px] border-0 focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none transition-all text-base placeholder:text-sm bg-transparent"
                     />
                     <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                   </>
@@ -238,7 +253,7 @@ export default function MenuSearch({ items }: MenuSearchProps) {
                       placeholder="ماذا تورید؟"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full pl-10 pr-4 py-6 md:py-5 rounded-[10px] border-0 focus:outline-none focus:ring-0 transition-all text-base placeholder:text-sm bg-transparent"
+                      className="w-full pl-10 pr-4 py-6 md:py-5 rounded-[10px] border-0 focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none transition-all text-base placeholder:text-sm bg-transparent"
                     />
                   </>
                 ) : (
@@ -249,7 +264,7 @@ export default function MenuSearch({ items }: MenuSearchProps) {
                       placeholder=" بەدوای چی دەگەڕێیت؟"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full pl-10 pr-4 py-6 md:py-5 rounded-[10px] border-0 focus:outline-none focus:ring-0 transition-all text-base placeholder:text-sm bg-transparent"
+                      className="w-full pl-10 pr-4 py-6 md:py-5 rounded-[10px] border-0 focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none transition-all text-base placeholder:text-sm bg-transparent"
                     />
                   </>
                 )}
