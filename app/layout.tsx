@@ -23,8 +23,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html suppressHydrationWarning className={`${geistSans.variable} ${geistMono.variable} ${fontSirwan.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col font-sirwan">{children}</body>
+    <html suppressHydrationWarning className={`${geistSans.variable} ${geistMono.variable} ${fontSirwan.variable} h-full antialiased w-full max-w-full overflow-x-hidden`}>
+      <body className="min-h-full flex flex-col font-sirwan w-full max-w-full overflow-x-hidden">{children}</body>
     </html>
   );
 }

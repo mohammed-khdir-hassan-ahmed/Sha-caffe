@@ -134,6 +134,13 @@ html[dir='ltr'] body {
   * {
     @apply border-border outline-ring/50;
   }
+  html,
+  body {
+    max-width: 100%;
+    overflow-x: hidden;
+    position: relative;
+    overscroll-behavior-x: none;
+  }
   body {
     @apply bg-background text-foreground;
   }

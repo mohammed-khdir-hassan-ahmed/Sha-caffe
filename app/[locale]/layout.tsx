@@ -37,7 +37,7 @@ export default async function LocaleLayout({
     <LocaleSetup locale={locale}>
       <NextIntlClientProvider locale={locale} messages={messages}>
         <CartProvider>
-          <div dir={dir} className="min-h-screen">
+          <div dir={dir} className="min-h-screen w-full max-w-full overflow-x-hidden">
             {children}
           </div>
         </CartProvider>
